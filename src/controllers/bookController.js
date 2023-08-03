@@ -19,6 +19,17 @@ class BookController {
         })
     }
 
+    static deleteBook = (req, res) => {
+        const id = req.params.id;
+        books.findByIdAndDelete(id, (err) => {
+            if(!err){
+                res.status(200).send(`Successfully delete book`)
+            }else{
+                res.status(500).send({message: `${err.message} = Id not found! `})
+            }
+        })
+    }
+
     static createdBook = (req, res) => {
         let book = new books(req.body)
         book.save((err) => {
