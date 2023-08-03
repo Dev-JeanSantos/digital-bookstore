@@ -3,14 +3,18 @@ import books from "../model/Book.js";
 class BookController {
 
     static getAllBooks = (req, res) => {
-        books.find((err, books) => {
+        books.find()
+        .populate('author')
+        .exec((err, books) => {
             res.status(200).json(books)
         })
     }
     
     static getBookById = (req, res) => {
         const id = req.params.id;
-        books.findById(id, (err, books) => {
+        books.findById(id)
+        .populate('author', 'name')
+        .exec((err, books) => {
             if(err){
                 res.status(400).send({message: `${err.message} = Id not found! `})
             }else{
@@ -38,7 +42,7 @@ class BookController {
                     message: `${err.message} - failed create book`
                 })
             } else {
-                res.status(200).json(book.toJSON)
+                res.status(200).json(book.toJSON())
             }
         });
     }
@@ -52,6 +56,14 @@ class BookController {
                 res.status(500).send({message: err.message})
             }
         })
+    }
+
+    static getAllBookByCompanyPublish = (req, res) =>{
+       const companyPublish = req.query.companyPublish
+       
+       books.find({'companyPublish': companyPublish}, {}, (err, books) =>{
+            res.status(200).send(books);
+       })
     }
 }
 
