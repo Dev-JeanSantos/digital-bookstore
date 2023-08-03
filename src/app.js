@@ -20,12 +20,6 @@ app.get('/books/:id', (req, res) => {
     res.json(books[index]);
 })
 
-app.put('/books/:id', (req, res) => {
-    let index = getBookById(req.params.id);
-    books[index].title = req.body.title
-    res.status(200).send(`Successfully update book ${req.body.title}`)
-})
-
 app.delete('/books/:id', (req, res) => {
     let {
         id
