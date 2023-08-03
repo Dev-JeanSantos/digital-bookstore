@@ -32,6 +32,13 @@ app.put('/books/:id',(req, res) => {
     res.status(200).send(`Successfully update book ${req.body.title}`)
 })
 
+app.delete('/books/:id',(req, res) => {
+    let {id} = req.params;
+    let index = getBookById(id);
+    book.splice(index, 1);
+    res.status(200).send(`Successfully delete book ${id}`)
+})
+
 
 function getBookById(id){
     return book.findIndex( book => book.id == id )
