@@ -45,8 +45,8 @@ class AuthorController {
   static createdAuthor = async (req, res) => {
     try {
       let author = new authors(req.body);
-      const authorResult = await author.save(author);
-      res.status(200).json(authorResult.toJSON());
+      const authorResult = await author.save();
+      res.status(201).json(authorResult.toJSON());
     } catch (error) {
       res.status(500).send({
         message: `${error.message} - failed create author`
@@ -62,7 +62,7 @@ class AuthorController {
         $set: req.body
       });
       res.status(200).send({
-        message: "Successfully update auhtor"
+        message: "Successfully update author"
       });
     } catch (error) {
       res.status(500).send({

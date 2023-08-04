@@ -1,69 +1,85 @@
+import json from "express";
 import books from "../model/Book.js";
 
 class BookController {
 
-  static getAllBooks = (req, res) => {
-    books.find()
-      .populate("author")
-      .populate("companyPublish")
-      .exec((err, books) => {
-        res.status(200).json(books);
+  static getAllBooks = async (req, res) => {
+    try {
+      const bookResult = await books.find()
+        .populate("author")
+        .populate("companyPublish")
+        .exec();
+      res.status(200).json(bookResult);
+    } catch (error) {
+      res.status(500);
+      json({
+        message: "Erro no servidor"
       });
+    }
   };
-    
-  static getBookById = (req, res) => {
-    const id = req.params.id;
-    books.findById(id)
-      .populate("author", "name")
-      .populate("companyPublisher")
-      .exec((err, books) => {
-        if(err){
-          res.status(400).send({message: `${err.message} = Id not found! `});
-        }else{
-          res.status(200).send(books);
-        }
+
+  static getBookById = async (req, res) => {
+    try {
+      const id = req.params.id;
+      const bookResult = await books.findById(id)
+        .populate("author", "name")
+        .populate("companyPublish")
+        .exec();
+      res.status(200).send(bookResult);
+    } catch (error) {
+      res.status(400).send({
+        message: `${error.message} = Id not found! `
       });
+    }
   };
 
-  static deleteBook = (req, res) => {
-    const id = req.params.id;
-    books.findByIdAndDelete(id, (err) => {
-      if(!err){
-        res.status(200).send("Successfully delete book");
-      }else{
-        res.status(500).send({message: `${err.message} = Id not found! `});
-      }
-    });
+  static deleteBook = async (req, res) => {
+    try {
+      const id = req.params.id;
+      await books.findByIdAndDelete(id);
+      res.status(200).send("Successfully delete book");
+    } catch (error) {
+      res.status(500).send({
+        message: `${error.message} = Id not found! `
+      });
+    }
   };
 
-  static createdBook = (req, res) => {
-    let book = new books(req.body);
-    book.save((err) => {
-      if (err) {
-        res.status(500).send({
-          message: `${err.message} - failed create book`
-        });
-      } else {
-        res.status(200).json(book.toJSON());
-      }
-    });
-  };
-    
-  static updateBook = (req, res) => {
-    const id = req.params.id;
-    books.findByIdAndUpdate(id, {$set: req.body},(err) =>{
-      if(!err){
-        res.status(200).send({message: "Successfully update book"});
-      }else{
-        res.status(500).send({message: err.message});
-      }
-    });
+  static createdBook = async (req, res) => {
+    try {
+      let book = new books(req.body);
+      const bookResult = await book.save();
+      res.status(201).json(bookResult.toJSON());
+
+    } catch (error) {
+      res.status(500).send({
+        message: `${error.message} - failed create book`
+      });
+    }
   };
 
-  static getAllBookByCompanyPublish = (req, res) =>{
+  static updateBook = async (req, res) => {
+    try {
+      const id = req.params.id;
+      await books.findByIdAndUpdate(id, {
+        $set: req.body
+      });
+      res.status(200).send({
+        message: "Successfully update book"
+      });
+    } catch (error) {
+      res.status(500).send({
+        message: error.message
+      });
+    }
+  };
+
+  static getAllBookByCompanyPublish = (req, res) => {
     const companyPublish = req.query.companyPublish;
-       
-    books.find({"companyPublish": companyPublish}, {}, (err, books) =>{
+
+    books.find({
+      "companyPublish": companyPublish
+    }, {}, (err, books) => {
       res.status(200).send(books);
     });
   };
