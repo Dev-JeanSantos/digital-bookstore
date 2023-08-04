@@ -1,58 +1,66 @@
+import {
+  json
+} from "express";
 import companyPublishers from "../model/CompanyPublish.js";
 
 class CompanyPublisherController {
 
-  static getAllCompanyPublishers = (req, res) => {
-    companyPublishers.find((err, companyPublishers) => {
-      res.status(200).json(companyPublishers);
-    });
-  };
-    
-  static getCompanyPublisherById = (req, res) => {
-    const id = req.params.id;
-    companyPublishers.findById(id, (err, companypublishers) => {
-      if(err){
-        res.status(400).send({message: `${err.message} = Id not found! `});
-      }else{
-        res.status(200).send(companypublishers);
-      }
-    });
+  static getAllCompanyPublishers = async (req, res) => {
+    try {
+      const companyPublishersResult = await companyPublishers.find();
+      res.status(200).json(companyPublishersResult);
+    } catch (error) {
+      res.status(500);
+      json({
+        message: "Erro no servidor"
+      });
+    }
   };
 
-  static deleteCompanyPublisher = (req, res) => {
-    const id = req.params.id;
-    companyPublishers.findByIdAndDelete(id, (err) => {
-      if(!err){
-        res.status(200).send("Successfully delete auhtor");
-      }else{
-        res.status(500).send({message: `${err.message} = Id not found! `});
-      }
-    });
+  static getCompanyPublisherById = async (req, res) => {
+    try {
+      const id = req.params.id;
+      const companyPublishersResult = await companyPublishers.findById(id);
+      res.status(200).send(companyPublishersResult);
+    } catch (error) {
+      res.status(400).send({
+        message: `${error.message} = Id not found! `
+      });
+    }
   };
 
-  static createdCompanyPublisher = (req, res) => {
-    let companyPublisher = new companyPublishers(req.body);
-    console.log(companyPublisher);
-    companyPublisher.save((err) => {
-      if (err) {
-        res.status(500).send({
-          message: `${err.message} - failed create companyPublisher`
-        });
-      } else {
-        res.status(200).json(companyPublisher.toJSON());
-      }
-    });
+  static deleteCompanyPublisher = async (req, res) => {
+    try {
+      const id = req.params.id;
+      await companyPublishers.findByIdAndDelete(id);
+      res.status(200).send("Successfully delete Company Publisher");
+    } catch (error) {
+      res.status(500).send({
+        message: `${error.message} = Id not found! `
+      });
+    }
   };
-    
-  static updateCompanyPublisher = (req, res) => {
-    const id = req.params.id;
-    companyPublishers.findByIdAndUpdate(id, {$set: req.body},(err) =>{
-      if(!err){
-        res.status(200).send({message: "Successfully update auhtor"});
-      }else{
-        res.status(500).send({message: err.message});
-      }
-    });
+
+  static createdCompanyPublisher = async (req, res) => {
+    try {
+      let companyPublisher = new companyPublishers(req.body);
+      const companyPublisResult = await companyPublisher.save();
+      res.status(200).json(companyPublisResult.toJSON());
+    } catch (error) {
+      res.status(500).send({
+        message: `${error.message} - failed create companyPublisher`
+      });
+    }
+  };
+
+  static updateCompanyPublisher = async (req, res) => {
+    try {
+      const id = req.params.id;
+      await companyPublishers.findByIdAndUpdate(id, {$set: req.body});
+      res.status(200).send({message: "Successfully update Company Publisher" });
+    } catch (error) {
+      res.status(500).send({message: error.message });
+    }
   };
 }
 
