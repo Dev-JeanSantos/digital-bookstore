@@ -5,6 +5,7 @@ class BookController {
     static getAllBooks = (req, res) => {
         books.find()
         .populate('author')
+        .populate('companyPublish')
         .exec((err, books) => {
             res.status(200).json(books)
         })
@@ -14,6 +15,7 @@ class BookController {
         const id = req.params.id;
         books.findById(id)
         .populate('author', 'name')
+        .populate('companyPublisher')
         .exec((err, books) => {
             if(err){
                 res.status(400).send({message: `${err.message} = Id not found! `})
