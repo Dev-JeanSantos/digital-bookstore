@@ -1,57 +1,74 @@
+import {
+  json
+} from "express";
 import authors from "../model/Author.js";
 
 class AuthorController {
 
-  static getAllAuthors = (req, res) => {
-    authors.find((err, authors) => {
-      res.status(200).json(authors);
-    });
-  };
-    
-  static getAuthorById = (req, res) => {
-    const id = req.params.id;
-    authors.findById(id, (err, authors) => {
-      if(err){
-        res.status(400).send({message: `${err.message} = Id not found! `});
-      }else{
-        res.status(200).send(authors);
-      }
-    });
+  static getAllAuthors = async (req, res) => {
+    try {
+      const authorsResult = await authors.find();
+      res.status(200).json(authorsResult);
+    } catch (error) {
+      res.status(500);
+      json({
+        message: "Erro no servidor"
+      });
+    }
   };
 
-  static deleteAuthor = (req, res) => {
-    const id = req.params.id;
-    authors.findByIdAndDelete(id, (err) => {
-      if(!err){
-        res.status(200).send("Successfully delete auhtor");
-      }else{
-        res.status(500).send({message: `${err.message} = Id not found! `});
-      }
-    });
+  static getAuthorById = async (req, res) => {
+    try {
+      const id = req.params.id;
+      const authorResult = await authors.findById(id);
+      res.status(200).send(authorResult);
+    } catch (error) {
+      res.status(400).send({
+        message: `${error.message} = Id not found! `
+      });
+    }
   };
 
-  static createdAuthor = (req, res) => {
-    let author = new authors(req.body);
-    author.save((err) => {
-      if (err) {
-        res.status(500).send({
-          message: `${err.message} - failed create author`
-        });
-      } else {
-        res.status(200).json(author.toJSON());
-      }
-    });
+  static deleteAuthor = async (req, res) => {
+
+    try {
+      const id = req.params.id;
+      await authors.findByIdAndDelete(id);
+      res.status(200).send("Successfully delete auhtor");
+    } catch (error) {
+      res.status(400).send({
+        message: `${error.message} = Id not found! `
+      });
+    }
   };
-    
-  static updateAuthor = (req, res) => {
-    const id = req.params.id;
-    authors.findByIdAndUpdate(id, {$set: req.body},(err) =>{
-      if(!err){
-        res.status(200).send({message: "Successfully update auhtor"});
-      }else{
-        res.status(500).send({message: err.message});
-      }
-    });
+
+  static createdAuthor = async (req, res) => {
+    try {
+      let author = new authors(req.body);
+      const authorResult = await author.save(author);
+      res.status(200).json(authorResult.toJSON());
+    } catch (error) {
+      res.status(500).send({
+        message: `${error.message} - failed create author`
+      });
+    }
+  };
+
+  static updateAuthor = async (req, res) => {
+
+    try {
+      const id = req.params.id;
+      await authors.findByIdAndUpdate(id, {
+        $set: req.body
+      });
+      res.status(200).send({
+        message: "Successfully update auhtor"
+      });
+    } catch (error) {
+      res.status(500).send({
+        message: error.message
+      });
+    }
   };
 }
 
