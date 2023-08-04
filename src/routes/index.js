@@ -5,16 +5,16 @@ import companyPublishersRoutes from "./companyPublishersRoutes.js";
 
 
 const routes = (app) => {
-    app.route('/').get((req, res) =>{
-        res.status(200).send('Home Page - Book API')
-    })
+  app.route("/").get((req, res) =>{
+    res.status(200).send("Home Page - Book API");
+  });
 
-    app.use(
-        express.json(),
-        booksRoutes,
-        authorRoutes,
-        companyPublishersRoutes
-    )
-}
+  app.use(
+    express.json(),
+    booksRoutes,
+    authorRoutes,
+    companyPublishersRoutes
+  );
+};
 
 export default routes;

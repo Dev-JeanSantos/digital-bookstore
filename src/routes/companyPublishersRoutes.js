@@ -4,10 +4,10 @@ import companyPublishersController from "../controllers/companyPublisheControlle
 const router = express.Router();
 
 router
-    .get("/companyPublishers", companyPublishersController.getAllCompanyPublishers)
-    .get("/companyPublishers/:id", companyPublishersController.getCompanyPublisherById)
-    .post("/companyPublishers", companyPublishersController.createdCompanyPublisher)
-    .put("/companyPublishers/:id", companyPublishersController.updateCompanyPublisher)
-    .delete("/companyPublishers/:id", companyPublishersController.deleteCompanyPublisher)
+  .get("/companyPublishers", companyPublishersController.getAllCompanyPublishers)
+  .get("/companyPublishers/:id", companyPublishersController.getCompanyPublisherById)
+  .post("/companyPublishers", companyPublishersController.createdCompanyPublisher)
+  .put("/companyPublishers/:id", companyPublishersController.updateCompanyPublisher)
+  .delete("/companyPublishers/:id", companyPublishersController.deleteCompanyPublisher);
 
 export default router;
