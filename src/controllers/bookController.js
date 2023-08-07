@@ -74,14 +74,19 @@ class BookController {
     }
   };
 
-  static getAllBookByCompanyPublish = (req, res) => {
-    const companyPublish = req.query.companyPublish;
+  static getAllBookByCompanyPublish = async (req, res) => {
 
-    books.find({
-      "companyPublish": companyPublish
-    }, {}, (err, books) => {
-      res.status(200).send(books);
-    });
+    try {
+      const companyPublish = req.query.companyPublish;
+      const booksResult = books.find({
+        "companyPublish": companyPublish
+      }, {}, (books));
+      res.status(200).send(booksResult);
+    } catch (error) {
+      res.status(500).send({
+        message: error.message
+      });
+    }
   };
 }
 

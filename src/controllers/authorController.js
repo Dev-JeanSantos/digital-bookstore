@@ -2,6 +2,7 @@ import {
   json
 } from "express";
 import authors from "../model/Author.js";
+import mongoose from "mongoose";
 
 class AuthorController {
 
@@ -21,11 +22,19 @@ class AuthorController {
     try {
       const id = req.params.id;
       const authorResult = await authors.findById(id);
-      res.status(200).send(authorResult);
-    } catch (error) {
-      res.status(400).send({
-        message: `${error.message} = Id not found! `
-      });
+
+      if(authorResult !== null){
+        res.status(200).send(authorResult);
+      }else{
+        res.status(404).send(
+          {message: "Id Author not found!"});
+      }
+    }catch(error){
+      if(error instanceof mongoose.Error.CastError){
+        res.status(400).send({message: "bad data format!"});        
+      }else{
+        res.status(500).send({message: "Error Internal Servidor!"});
+      }
     }
   };
 
