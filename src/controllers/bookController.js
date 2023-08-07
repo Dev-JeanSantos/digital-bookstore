@@ -1,9 +1,8 @@
-import json from "express";
 import books from "../model/Book.js";
 
 class BookController {
 
-  static getAllBooks = async (req, res) => {
+  static getAllBooks = async (req, res, next) => {
     try {
       const bookResult = await books.find()
         .populate("author")
@@ -11,14 +10,11 @@ class BookController {
         .exec();
       res.status(200).json(bookResult);
     } catch (error) {
-      res.status(500);
-      json({
-        message: "Erro no servidor"
-      });
+      next(error);
     }
   };
 
-  static getBookById = async (req, res) => {
+  static getBookById = async (req, res, next) => {
     try {
       const id = req.params.id;
       const bookResult = await books.findById(id)
@@ -27,38 +23,32 @@ class BookController {
         .exec();
       res.status(200).send(bookResult);
     } catch (error) {
-      res.status(400).send({
-        message: `${error.message} = Id not found! `
-      });
+      next(error);
     }
   };
 
-  static deleteBook = async (req, res) => {
+  static deleteBook = async (req, res, next) => {
     try {
       const id = req.params.id;
       await books.findByIdAndDelete(id);
       res.status(200).send("Successfully delete book");
     } catch (error) {
-      res.status(500).send({
-        message: `${error.message} = Id not found! `
-      });
+      next(error);
     }
   };
 
-  static createdBook = async (req, res) => {
+  static createdBook = async (req, res, next) => {
     try {
       let book = new books(req.body);
       const bookResult = await book.save();
       res.status(201).json(bookResult.toJSON());
 
     } catch (error) {
-      res.status(500).send({
-        message: `${error.message} - failed create book`
-      });
+      next(error);
     }
   };
 
-  static updateBook = async (req, res) => {
+  static updateBook = async (req, res, next) => {
     try {
       const id = req.params.id;
       await books.findByIdAndUpdate(id, {
@@ -68,13 +58,11 @@ class BookController {
         message: "Successfully update book"
       });
     } catch (error) {
-      res.status(500).send({
-        message: error.message
-      });
+      next(error);
     }
   };
 
-  static getAllBookByCompanyPublish = async (req, res) => {
+  static getAllBookByCompanyPublish = async (req, res, next) => {
 
     try {
       const companyPublish = req.query.companyPublish;
@@ -83,9 +71,7 @@ class BookController {
       }, {}, (books));
       res.status(200).send(booksResult);
     } catch (error) {
-      res.status(500).send({
-        message: error.message
-      });
+      next(error);
     }
   };
 }

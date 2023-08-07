@@ -1,69 +1,55 @@
-import {
-  json
-} from "express";
 import authors from "../model/Author.js";
-import mongoose from "mongoose";
 
 class AuthorController {
 
-  static getAllAuthors = async (req, res) => {
+  static getAllAuthors = async (req, res, next) => {
     try {
       const authorsResult = await authors.find();
       res.status(200).json(authorsResult);
     } catch (error) {
-      res.status(500);
-      json({
-        message: "Erro no servidor"
-      });
+      next(error);
     }
   };
 
-  static getAuthorById = async (req, res) => {
+  static getAuthorById = async (req, res, next) => {
     try {
       const id = req.params.id;
       const authorResult = await authors.findById(id);
 
-      if(authorResult !== null){
+      if (authorResult !== null) {
         res.status(200).send(authorResult);
-      }else{
-        res.status(404).send(
-          {message: "Id Author not found!"});
+      } else {
+        res.status(404).send({
+          message: "Id Author not found!"
+        });
       }
-    }catch(error){
-      if(error instanceof mongoose.Error.CastError){
-        res.status(400).send({message: "bad data format!"});        
-      }else{
-        res.status(500).send({message: "Error Internal Servidor!"});
-      }
+    } catch (error) {
+      next(error);
     }
   };
 
-  static deleteAuthor = async (req, res) => {
+  static deleteAuthor = async (req, res, next) => {
 
     try {
       const id = req.params.id;
       await authors.findByIdAndDelete(id);
       res.status(200).send("Successfully delete auhtor");
     } catch (error) {
-      res.status(400).send({
-        message: `${error.message} = Id not found! `
-      });
+      next(error);
     }
   };
 
-  static createdAuthor = async (req, res) => {
+  static createdAuthor = async (req, res, next) => {
     try {
       let author = new authors(req.body);
       const authorResult = await author.save();
       res.status(201).json(authorResult.toJSON());
     } catch (error) {
-      res.status(500).send({
-        message: `${error.message} - failed create author`
-      });
+      next(error);
     }
   };
 
-  static updateAuthor = async (req, res) => {
+  static updateAuthor = async (req, res, next) => {
 
     try {
       const id = req.params.id;
@@ -74,9 +60,7 @@ class AuthorController {
         message: "Successfully update author"
       });
     } catch (error) {
-      res.status(500).send({
-        message: error.message
-      });
+      next(error);
     }
   };
 }
