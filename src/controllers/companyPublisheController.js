@@ -1,3 +1,4 @@
+import NotFound from "../errors/NotFound.js";
 import companyPublishers from "../model/CompanyPublish.js";
 
 class CompanyPublisherController {
@@ -15,17 +16,25 @@ class CompanyPublisherController {
     try {
       const id = req.params.id;
       const companyPublishersResult = await companyPublishers.findById(id);
-      res.status(200).send(companyPublishersResult);
+      if(companyPublishersResult !== null){
+        res.status(200).send(companyPublishersResult);
+      }else{
+        next(new NotFound("Company Publish Id  not found!"));
+      }
     } catch (error) {
       next(error);
     }
   };
-
+  
   static deleteCompanyPublisher = async (req, res, next) => {
     try {
       const id = req.params.id;
-      await companyPublishers.findByIdAndDelete(id);
-      res.status(200).send("Successfully delete Company Publisher");
+      const companyPublish = await companyPublishers.findByIdAndDelete(id);
+      if(companyPublish !== null){
+        res.status(200).send("Successfully delete Company Publisher");
+      }else{
+        next(new NotFound("Company Publish Id  not found!"));
+      }
     } catch (error) {
       next(error);
     }
@@ -40,16 +49,20 @@ class CompanyPublisherController {
       next(error);
     }
   };
-
+  
   static updateCompanyPublisher = async (req, res, next) => {
     try {
       const id = req.params.id;
-      await companyPublishers.findByIdAndUpdate(id, {
+      const companyResult = await companyPublishers.findByIdAndUpdate(id, {
         $set: req.body
       });
-      res.status(200).send({
-        message: "Successfully update Company Publisher"
-      });
+      if(companyResult !== null){
+        res.status(200).send({
+          message: "Successfully update Company Publisher"
+        });
+      }else{
+        next(new NotFound("Company Publish Id  not found!"));
+      }
     } catch (error) {
       next(error);
     }
