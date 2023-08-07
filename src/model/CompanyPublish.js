@@ -3,7 +3,10 @@ import mongoose from "mongoose";
 const companyPublishSchema = new mongoose.Schema(
   {
     id: {type: String},
-    name: {type: String, required: true}
+    name: {
+      type: String, 
+      required: [true, "Company Publish name required!"]    
+    }
   },
   {
     versionKey: false
