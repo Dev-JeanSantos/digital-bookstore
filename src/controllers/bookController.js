@@ -1,5 +1,5 @@
 import NotFound from "../errors/NotFound.js";
-import books from "../model/Book.js";
+import {books} from "../model/index.js";
 
 class BookController {
 

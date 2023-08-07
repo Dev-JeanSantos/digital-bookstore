@@ -9,7 +9,6 @@ const authorSchema = new mongoose.Schema(
     },
     nationality: {
       type: String, 
-      required: [true, "author nationality required!"]  
     }
   },
   {

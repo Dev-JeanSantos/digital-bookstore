@@ -16,7 +16,11 @@ const bookSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref:"companyPublish",
       required: [true, "Company Publish Id required!"]  },
-    numberPages: {type: Number},
+    numberPages: {
+      type: Number,
+      min: [10, "Numbers pages minimum 10. Value provided {VALUE} "],
+      max: [1000, "Numbers pages maximum 10. Value provided {VALUE}"]
+    },
   }
 );
 
