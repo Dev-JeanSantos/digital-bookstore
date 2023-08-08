@@ -79,12 +79,8 @@ class BookController {
   
   static getAllBookByFilter = async (req, res, next) => {
     try {
-      const {companyPublish, title} = req.query;
-      const find = {} ;
 
-      if(companyPublish) find.companyPublish = companyPublish;
-      if(title) find.title = title;
-
+      const find = findProcess(req.query);
       const booksResult = await books.find(find);
       
       if(booksResult !== null){
@@ -96,6 +92,21 @@ class BookController {
       next(error);
     }
   };
+}
+
+
+function findProcess(params){
+  const {companyPublish, title, minPages, maxPages} = params;
+  const find = {};
+
+  if(companyPublish) find.companyPublish = companyPublish;
+  if(title) find.title = {$regex: title, $options: "i"}; //Utilizando operadores do mongoose
+  if(minPages || maxPages) find.numberPages = { };
+
+  if(minPages) find.numberPages.$gte = minPages;
+  if(maxPages) find.numberPages.$lte = maxPages;
+
+  return find;
 }
 
 export default BookController;
