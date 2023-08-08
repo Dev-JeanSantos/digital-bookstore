@@ -1,3 +1,4 @@
+import IncorrectRequest from "../errors/IncorrectRequest.js";
 import NotFound from "../errors/NotFound.js";
 import {
   authors,
@@ -9,11 +10,21 @@ class BookController {
 
   static getAllBooks = async (req, res, next) => {
     try {
-      const bookResult = await books.find()
-        .populate("author")
-        .populate("companyPublish")
-        .exec();
-      res.status(200).json(bookResult);
+      let {limit = 5, page = 1} = req.query;
+      
+      limit = parseInt(limit);
+      page = parseInt(page);
+      if(limit > 0 && page > 0){
+        const bookResult = await books.find()
+          .skip((page - 1) * limit)
+          .limit(limit)
+          .populate("author")
+          .populate("companyPublish")
+          .exec();
+        res.status(200).json(bookResult);
+      }else{
+        next(new IncorrectRequest());
+      }
     } catch (error) {
       next(error);
     }
@@ -91,7 +102,7 @@ class BookController {
           .populate("companyPublish");
 
         res.status(200).send(booksResult);
-      }else{
+      } else {
         res.status(200).send([]);
       }
     } catch (error) {
@@ -136,10 +147,9 @@ async function findProcess(params) {
     const author = await authors.findOne({
       name: nameAuthor
     });
-    console.log(author);
-    if(author !== null){
+    if (author !== null) {
       find.author = author._id;
-    }else{
+    } else {
       find = null;
     }
   }
