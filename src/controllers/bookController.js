@@ -1,5 +1,9 @@
 import NotFound from "../errors/NotFound.js";
-import {authors, books, companyPublishes} from "../model/index.js";
+import {
+  authors,
+  books,
+  companyPublishes
+} from "../model/index.js";
 
 class BookController {
 
@@ -23,23 +27,23 @@ class BookController {
         .populate("companyPublish")
         .exec();
 
-      if(bookResult !== null){
+      if (bookResult !== null) {
         res.status(200).send(bookResult);
-      }else{
+      } else {
         next(new NotFound("Book Id not found"));
       }
     } catch (error) {
       next(error);
     }
   };
-  
+
   static deleteBook = async (req, res, next) => {
     try {
       const id = req.params.id;
       const bookResult = await books.findByIdAndDelete(id);
-      if(bookResult !== null){
+      if (bookResult !== null) {
         res.status(200).send("Successfully delete book");
-      }else{
+      } else {
         next(new NotFound("Book Id not found"));
       }
     } catch (error) {
@@ -65,31 +69,30 @@ class BookController {
         $set: req.body
       });
 
-      if(bookResult !== null){
+      if (bookResult !== null) {
         res.status(200).send({
           message: "Successfully update book"
         });
-      }else{
+      } else {
         next(new NotFound("Book Id not found"));
       }
     } catch (error) {
       next(error);
     }
   };
-  
+
   static getAllBookByFilter = async (req, res, next) => {
     try {
-
       const find = await findProcess(req.query);
-      const booksResult = await books
-        .find(find)
-        .populate("author", "name")
-        .populate("companyPublish");
-      
-      if(booksResult !== null){
+      if (find !== null) {
+        const booksResult = await books
+          .find(find)
+          .populate("author", "name")
+          .populate("companyPublish");
+
         res.status(200).send(booksResult);
       }else{
-        next(new NotFound("Book Id not found"));
+        res.status(200).send([]);
       }
     } catch (error) {
       next(error);
@@ -98,28 +101,47 @@ class BookController {
 }
 
 
-async function findProcess(params){
-  const {nameAuthor, nameCompanyPublish, title, minPages, maxPages} = params;
-  const find = {};
+async function findProcess(params) {
+  const {
+    nameAuthor,
+    nameCompanyPublish,
+    title,
+    minPages,
+    maxPages
+  } = params;
+  let find = {};
 
-  if(title) find.title = {$regex: title, $options: "i"}; //Utilizando operadores do mongoose
-  if(minPages || maxPages) find.numberPages = { };
+  if (title) find.title = {
+    $regex: title,
+    $options: "i"
+  }; //Utilizando operadores do mongoose
+  if (minPages || maxPages) find.numberPages = {};
 
-  if(minPages) find.numberPages.$gte = minPages;
-  if(maxPages) find.numberPages.$lte = maxPages;
+  if (minPages) find.numberPages.$gte = minPages;
+  if (maxPages) find.numberPages.$lte = maxPages;
 
-  if(nameCompanyPublish){
-    const companyPublish = await companyPublishes.findOne({name: nameCompanyPublish});
-    const companyPublishId = companyPublish._id;
+  if (nameCompanyPublish) {
+    const companyPublish = await companyPublishes.findOne({
+      name: nameCompanyPublish
+    });
+    if (companyPublish !== null) {
+      find.companyPublish = companyPublish._id;
+    } else {
+      find = null;
+    }
 
-    find.companyPublish = companyPublishId;
   }
 
-  if(nameAuthor){
-    const author = await authors.findOne({name: nameAuthor});
-    const auhtorId = author._id;
-
-    find.author = auhtorId;
+  if (nameAuthor) {
+    const author = await authors.findOne({
+      name: nameAuthor
+    });
+    console.log(author);
+    if(author !== null){
+      find.author = author._id;
+    }else{
+      find = null;
+    }
   }
 
   return find;
