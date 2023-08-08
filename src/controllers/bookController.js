@@ -1,5 +1,5 @@
 import NotFound from "../errors/NotFound.js";
-import {books} from "../model/index.js";
+import {authors, books, companyPublishes} from "../model/index.js";
 
 class BookController {
 
@@ -80,8 +80,11 @@ class BookController {
   static getAllBookByFilter = async (req, res, next) => {
     try {
 
-      const find = findProcess(req.query);
-      const booksResult = await books.find(find);
+      const find = await findProcess(req.query);
+      const booksResult = await books
+        .find(find)
+        .populate("author", "name")
+        .populate("companyPublish");
       
       if(booksResult !== null){
         res.status(200).send(booksResult);
@@ -95,16 +98,29 @@ class BookController {
 }
 
 
-function findProcess(params){
-  const {companyPublish, title, minPages, maxPages} = params;
+async function findProcess(params){
+  const {nameAuthor, nameCompanyPublish, title, minPages, maxPages} = params;
   const find = {};
 
-  if(companyPublish) find.companyPublish = companyPublish;
   if(title) find.title = {$regex: title, $options: "i"}; //Utilizando operadores do mongoose
   if(minPages || maxPages) find.numberPages = { };
 
   if(minPages) find.numberPages.$gte = minPages;
   if(maxPages) find.numberPages.$lte = maxPages;
+
+  if(nameCompanyPublish){
+    const companyPublish = await companyPublishes.findOne({name: nameCompanyPublish});
+    const companyPublishId = companyPublish._id;
+
+    find.companyPublish = companyPublishId;
+  }
+
+  if(nameAuthor){
+    const author = await authors.findOne({name: nameAuthor});
+    const auhtorId = author._id;
+
+    find.author = auhtorId;
+  }
 
   return find;
 }
